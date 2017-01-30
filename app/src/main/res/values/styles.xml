@@ -1,0 +1,67 @@
+<resources>
+
+    <!-- Creamos un tema que herede de cualquier tema "NoActionBar" para evitar conflictos posteriores. -->
+    <style name="MiTema" parent="Theme.AppCompat.Light.NoActionBar">
+
+        <!-- Colores configurados en res/values/colors.xml -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+
+    </style>
+
+    <!-- NoActionBar -->
+    <style name="MiTema.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="CustomProgressBar" parent="android:Widget.ProgressBar.Large.Inverse">
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:progressDrawable">@drawable/mipbstyle</item>
+        <item name="android:minHeight">10dip</item>
+        <item name="android:maxHeight">20dip</item>
+    </style>
+
+    <style name="MiTema.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="MiTema.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppTheme.Dark.Dialog" parent="Theme.AppCompat.Dialog">
+        <item name="colorAccent">@color/accent</item>
+        <item name="android:textColorPrimary">@color/secondary_text</item>
+        <item name="android:background">@color/primary</item>
+    </style>
+
+    <style name="AppTheme.Dark" parent="Theme.AppCompat.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+
+        <item name="android:windowBackground">@color/primary</item>
+
+        <item name="colorControlNormal">@color/primary_light</item>
+        <item name="colorControlActivated">@color/accent</item>
+        <item name="colorControlHighlight">@color/accent</item>
+        <item name="android:textColorHint">@color/primary_light</item>
+
+        <item name="colorButtonNormal">@color/primary_dark</item>
+        <item name="android:colorButtonNormal">@color/primary_dark</item>
+    </style>
+
+    <style name="MiTemaRecurso" parent="Theme.AppCompat.Light.NoActionBar">
+
+        <!-- Colores configurados en res/values/colors.xml -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryDark">@color/primary_dark</item>
+        <item name="colorAccent">@color/accent</item>
+        <item name="colorButtonNormal">@color/primary_dark</item>
+        <item name="android:colorButtonNormal">@color/primary_dark</item>
+
+        <item name="colorControlNormal">@color/primary_dark</item>
+        <item name="colorControlActivated">@color/accent</item>
+        <item name="colorControlHighlight">@color/accent</item>
+        <item name="android:textColorHint">@color/primary_dark</item>
+
+    </style>
+</resources>

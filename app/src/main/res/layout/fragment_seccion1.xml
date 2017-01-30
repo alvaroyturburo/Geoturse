@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical"
+xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:padding="16dp"
+xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<Spinner
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/spinner_prin_radio"
+    android:entries="@array/spinner_radio" />
+
+<Space
+    android:layout_width="match_parent"
+    android:paddingBottom="12dp"
+    android:layout_height="20dp" />
+
+<com.google.android.gms.maps.MapView
+    android:id="@+id/mapView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
+</LinearLayout>

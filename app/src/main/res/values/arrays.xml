@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="spinner_radio">
+        <item>Mostrar todos</item>
+        <item>5 kilometros a la redonda</item>
+        <item>10 kilometros a la redonda</item>
+        <item>15 kilometros a la redonda</item>
+    </string-array>
+</resources>
