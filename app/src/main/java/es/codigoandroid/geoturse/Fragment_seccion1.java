@@ -20,6 +20,10 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.Query;
+import com.couchbase.lite.QueryEnumerator;
+import com.couchbase.lite.QueryRow;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -33,14 +37,21 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Locale;
+
+import es.codigoandroid.es.codigoandroid.datamanager.CouchbaseManager;
+import es.codigoandroid.pojos.Recursos;
 
 
 public class Fragment_seccion1 extends Fragment {
-
+    private static final String TAG = "Fragment_seccion1";
+    CouchbaseManager<String, Recursos> dbaRecurso_f1;
+    private ArrayList<Recursos> recursos_f1;
     MapView mMapView;
     private GoogleMap googleMap;
-    LatLng upse, upse2, upse3,upse4;
+    LatLng upse;
     Location loc;
     private LocationManager locManager;
 
@@ -49,21 +60,19 @@ public class Fragment_seccion1 extends Fragment {
 
         //  "Inflamos" el archivo XML correspondiente a esta sección.
         final View vista = inflater.inflate(R.layout.fragment_seccion1, container, false);
+        dbaRecurso_f1 = new CouchbaseManager<String, Recursos>(this.getActivity(), Recursos.class);
         inicLocation();
         registerLocation();
         //loc = new Location(String.valueOf(new LatLng(-2.229612,-80.8820533)));
+        inicPuntosMarker();
 
 
-
-        upse = new LatLng(-2.226289, -80.892688); // 3 km
-        upse2 = new LatLng(-2.209825, -80.950250); // 9 km
-        upse3 = new LatLng(-2.196617, -80.984926);// 12 km
-        upse4 = new LatLng(-2.188683, -81.011017);// 16 km
+        upse = new LatLng(-2.147709, -80.624193);
 
         mMapView = (MapView) vista.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
-        mMapView.onResume(); // needed to get the map to display immediately
+        mMapView.onResume();
 
         try {
             MapsInitializer.initialize(getActivity().getApplicationContext());
@@ -77,15 +86,11 @@ public class Fragment_seccion1 extends Fragment {
                 googleMap = mMap;
 
                 googleMap.setMyLocationEnabled(true);
+                //googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);//GoogleMap.MAP_TYPE_NORMAL - GoogleMap.MAP_TYPE_HYBRID - GoogleMap.MAP_TYPE_SATELLITE
 
-               /* googleMap.addMarker(new MarkerOptions().position(upse).title("Punto Upse").snippet("Marker Description")).showInfoWindow();
-                googleMap.addMarker(new MarkerOptions().position(upse2).title("Punto Upse2").snippet("Marker Description")).showInfoWindow();
-                googleMap.addMarker(new MarkerOptions().position(upse3).title("Punto Upse3").snippet("Marker Description")).showInfoWindow();
-                googleMap.addMarker(new MarkerOptions().position(upse4).title("Punto Upse4").snippet("Marker Description")).showInfoWindow();
-                */
                 googleMap.moveCamera(CameraUpdateFactory.newLatLng(upse));
                 googleMap.animateCamera(CameraUpdateFactory.zoomIn());
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(upse).zoom(15).build();
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(upse).zoom(9).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                     @Override
@@ -111,65 +116,72 @@ public class Fragment_seccion1 extends Fragment {
                 {
                     // crea todos los markers sin execcion
                     googleMap.clear();
-                    googleMap.addMarker(new MarkerOptions().position(upse).title("Punto Upse").snippet("Marker Description"));
-                    googleMap.addMarker(new MarkerOptions().position(upse2).title("Punto Upse2").snippet("Marker Description"));
-                    googleMap.addMarker(new MarkerOptions().position(upse3).title("Punto Upse3").snippet("Marker Description"));
-                    googleMap.addMarker(new MarkerOptions().position(upse4).title("Punto Upse4").snippet("Marker Description"));
+                    for(Recursos r : recursos_f1) {
+                        LatLng puntoRecurso;
+                        puntoRecurso = new LatLng(r.latitud(), r.longuitd());
+                        googleMap.addMarker(new MarkerOptions().position(puntoRecurso).title(r.getNombre()).snippet(r.getDireccion()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+                    }
 
-                   // Toast.makeText(getActivity(),"todos",Toast.LENGTH_LONG).show();
+
                 }
                 if (item.equals("5 kilometros a la redonda"))
                 {
                     googleMap.clear();
-                    if(distancia_loc_contenidos(loc,upse,5)){
-                        googleMap.addMarker(new MarkerOptions().position(upse).title("Punto Upse").snippet("Marker Description")).showInfoWindow();
+                    for(Recursos r : recursos_f1) {
+                        LatLng puntoRecurso;
+                        puntoRecurso = new LatLng(r.latitud(), r.longuitd());
+                        if(distancia_loc_contenidos(loc,puntoRecurso,5)){
+                            googleMap.addMarker(new MarkerOptions().position(puntoRecurso).title(r.getNombre()).snippet(r.getDireccion()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+                        }
                     }
-                    if(distancia_loc_contenidos(loc,upse2,5)){
-                        googleMap.addMarker(new MarkerOptions().position(upse2).title("Punto Upse2").snippet("Marker Description")).showInfoWindow();
-                    }
-                    if(distancia_loc_contenidos(loc,upse3,5)){
-                        googleMap.addMarker(new MarkerOptions().position(upse3).title("Punto Upse3").snippet("Marker Description")).showInfoWindow();
-                    }
-                    if(distancia_loc_contenidos(loc,upse4,5)){
-                        googleMap.addMarker(new MarkerOptions().position(upse4).title("Punto Upse4").snippet("Marker Description")).showInfoWindow();
-                    }
-                    //googleMap.addMarker(new MarkerOptions().position(upse).title("Punto Upse").snippet("Marker Description")).showInfoWindow();
-                   // Toast.makeText(getActivity(),"5KM",Toast.LENGTH_LONG).show();
+
                 }
                 if (item.equals("10 kilometros a la redonda"))
                 {
                     googleMap.clear();
-                    if(distancia_loc_contenidos(loc,upse,10)){
-                        googleMap.addMarker(new MarkerOptions().position(upse).title("Punto Upse").snippet("Marker Description")).showInfoWindow();
+                    for(Recursos r : recursos_f1) {
+                        LatLng puntoRecurso;
+                        puntoRecurso = new LatLng(r.latitud(), r.longuitd());
+                        if(distancia_loc_contenidos(loc,puntoRecurso,10)){
+                            googleMap.addMarker(new MarkerOptions().position(puntoRecurso).title(r.getNombre()).snippet(r.getDireccion()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+                        }
                     }
-                    if(distancia_loc_contenidos(loc,upse2,10)){
-                        googleMap.addMarker(new MarkerOptions().position(upse2).title("Punto Upse2").snippet("Marker Description")).showInfoWindow();
-                    }
-                    if(distancia_loc_contenidos(loc,upse3,10)){
-                        googleMap.addMarker(new MarkerOptions().position(upse3).title("Punto Upse3").snippet("Marker Description")).showInfoWindow();
-                    }
-                    if(distancia_loc_contenidos(loc,upse4,10)){
-                        googleMap.addMarker(new MarkerOptions().position(upse4).title("Punto Upse4").snippet("Marker Description")).showInfoWindow();
-                    }
-                    //Toast.makeText(getActivity(),"10KM",Toast.LENGTH_LONG).show();
 
                 }
                 if (item.equals("15 kilometros a la redonda"))
                 {
                     googleMap.clear();
-                    if(distancia_loc_contenidos(loc,upse,15)){
-                        googleMap.addMarker(new MarkerOptions().position(upse).title("Punto Upse").snippet("Marker Description")).showInfoWindow();
+                    for(Recursos r : recursos_f1) {
+                        LatLng puntoRecurso;
+                        puntoRecurso = new LatLng(r.latitud(), r.longuitd());
+                        if(distancia_loc_contenidos(loc,puntoRecurso,15)){
+                            googleMap.addMarker(new MarkerOptions().position(puntoRecurso).title(r.getNombre()).snippet(r.getDireccion()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+                        }
                     }
-                    if(distancia_loc_contenidos(loc,upse2,15)){
-                        googleMap.addMarker(new MarkerOptions().position(upse2).title("Punto Upse2").snippet("Marker Description")).showInfoWindow();
+
+                }
+                if (item.equals("25 kilometros a la redonda"))
+                {
+                    googleMap.clear();
+                    for(Recursos r : recursos_f1) {
+                        LatLng puntoRecurso;
+                        puntoRecurso = new LatLng(r.latitud(), r.longuitd());
+                        if(distancia_loc_contenidos(loc,puntoRecurso,25)){
+                            googleMap.addMarker(new MarkerOptions().position(puntoRecurso).title(r.getNombre()).snippet(r.getDireccion()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+                        }
                     }
-                    if(distancia_loc_contenidos(loc,upse3,15)){
-                        googleMap.addMarker(new MarkerOptions().position(upse3).title("Punto Upse3").snippet("Marker Description")).showInfoWindow();
+
+                }
+                if (item.equals("40 kilometros a la redonda"))
+                {
+                    googleMap.clear();
+                    for(Recursos r : recursos_f1) {
+                        LatLng puntoRecurso;
+                        puntoRecurso = new LatLng(r.latitud(), r.longuitd());
+                        if(distancia_loc_contenidos(loc,puntoRecurso,40)){
+                            googleMap.addMarker(new MarkerOptions().position(puntoRecurso).title(r.getNombre()).snippet(r.getDireccion()).icon(BitmapDescriptorFactory.fromResource(R.drawable.marker)));
+                        }
                     }
-                    if(distancia_loc_contenidos(loc,upse4,15)){
-                        googleMap.addMarker(new MarkerOptions().position(upse4).title("Punto Upse4").snippet("Marker Description")).showInfoWindow();
-                    }
-                    //Toast.makeText(getActivity(),"15KM",Toast.LENGTH_LONG).show();
 
                 }
 
@@ -180,8 +192,6 @@ public class Fragment_seccion1 extends Fragment {
 
             }
         });
-
-        // Y lo devolvemos
 
         return vista;
     }
@@ -257,7 +267,7 @@ public class Fragment_seccion1 extends Fragment {
         instLoc.setLatitude(point.latitude);
         instLoc.setLongitude(point.longitude);
 
-        //loc es un obejto de tipo Location que guarda mi posición
+
         distance = miUbicacion.distanceTo(instLoc);
         Log.v("ver cantidad ", ""+distance);
         if((distance/1000) < radio){
@@ -265,6 +275,25 @@ public class Fragment_seccion1 extends Fragment {
             Log.v("ver cantidad ", ""+distance);
         }
         return verificar_distancia;
+    }
+
+    public void inicPuntosMarker(){
+        recursos_f1 = new ArrayList<>();
+        final Query queryPlaces = dbaRecurso_f1.registerViews().createQuery();
+        QueryEnumerator rows = null;
+        try {
+            rows = queryPlaces.run();
+        } catch (CouchbaseLiteException e) {
+            e.printStackTrace();
+        }
+        for (Iterator<QueryRow> it = rows; it.hasNext(); ) {
+            QueryRow row = it.next();
+
+            Log.d("Estoy aki", row.getValue().toString());
+            Log.d("Estoy aki clave", row.getKey().toString());
+            Recursos recursoAlmacenado_f1 = dbaRecurso_f1.get(row.getKey().toString());
+            recursos_f1.add(recursoAlmacenado_f1);
+        }
     }
 
 

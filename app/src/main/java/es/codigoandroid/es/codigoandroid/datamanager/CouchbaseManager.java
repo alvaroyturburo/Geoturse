@@ -12,12 +12,16 @@ import com.couchbase.lite.Manager;
 import com.couchbase.lite.Mapper;
 import com.couchbase.lite.View;
 import com.couchbase.lite.android.AndroidContext;
+import com.couchbase.lite.auth.Authenticator;
+import com.couchbase.lite.replicator.Replication;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +51,14 @@ public class CouchbaseManager<K, V>
     Database dbCouchbase;
     Activity act; //La actividad que llama a la clase
    // Fragment frag;//Prueba para fragmentos
+
+    //*****Datos para replicacion
+    public final String TAG ="CouchbaseManager";
+    private static final String SYNC_URL_HTTP = "http://localhost:4984/geoturse";
+    private Replication mPull;
+    private Replication mPush;
+    private Throwable mReplError;
+    //
 
     //@Inject
     //private Gson gson;
@@ -176,6 +188,67 @@ public class CouchbaseManager<K, V>
         }, "1");
         return placesView;
     }
+
+
+    public Document devolverDocument(String llave) {
+        Document doc = dbCouchbase.getExistingDocument(llave);
+        return doc;
+    }
+
+
+
+
+
+
+    /** Replicator */
+
+    private URL getSyncUrl() {
+        URL url = null;
+        try {
+            url = new URL(SYNC_URL_HTTP);
+        } catch (MalformedURLException e) {
+            com.couchbase.lite.util.Log.e(TAG, "Invalid sync url", e);
+        }
+        return url;
+    }
+
+    private void startReplication(Authenticator auth) {
+        if (mPull == null) {
+            mPull = dbCouchbase.createPullReplication(getSyncUrl());
+            mPull.setContinuous(true);
+            mPull.setAuthenticator(auth);
+            mPull.addChangeListener((Replication.ChangeListener) this);
+        }
+
+        if (mPush == null) {
+            mPush = dbCouchbase.createPushReplication(getSyncUrl());
+            mPush.setContinuous(true);
+            mPush.setAuthenticator(auth);
+            mPush.addChangeListener((Replication.ChangeListener) this);
+        }
+
+        mPull.stop();
+        mPull.start();
+
+        mPush.stop();
+        mPush.start();
+    }
+
+    private void stopReplication() {
+        if (mPull != null) {
+            mPull.removeChangeListener((Replication.ChangeListener) this);
+            mPull.stop();
+            mPull = null;
+        }
+
+        if (mPush != null) {
+            mPush.removeChangeListener((Replication.ChangeListener) this);
+            mPush.stop();
+            mPush = null;
+        }
+    }
+
+
 
 
 }

@@ -1,12 +1,16 @@
 package es.codigoandroid.pojos;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Senderos {
+    @JsonProperty(value = "_id")
     private String _id;
     //recorrido
-    private ArrayList<String> recorrido = new ArrayList<String>();
+    private ArrayList<String> recorrido = new ArrayList<String>();//Utilizo
     //
     private ArrayList<Atractivo> atractivos = new ArrayList<Atractivo>();
     private Float duracion;
@@ -193,4 +197,8 @@ public class Senderos {
     public void verAnimacion(Animacion animacion){
 
     }
+
+
+
+
 }

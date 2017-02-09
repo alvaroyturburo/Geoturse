@@ -27,7 +27,15 @@ import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.Locale;
 
+import es.codigoandroid.es.codigoandroid.datamanager.CouchbaseManager;
+import es.codigoandroid.pojos.Recursos;
+import es.codigoandroid.pojos.Senderos;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback{
+    private static final String TAG = "RecursoDetalle";
+    CouchbaseManager<String, Recursos> dbaRecurso;
+    public Recursos recursoAlmacenado;
+    public String puntoString;
 
     private GoogleMap mMap;
 
@@ -41,8 +49,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        dbaRecurso = new CouchbaseManager<String, Recursos>(this, Recursos.class);
+        String mostrarR = getIntent().getExtras().getString("recurso");
+        recursoAlmacenado = dbaRecurso.get(mostrarR);
 
-        //client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab2);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -61,55 +73,58 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
-       /* UiSettings uiSettings = mMap.getUiSettings();
+        UiSettings uiSettings = mMap.getUiSettings();
         uiSettings.setScrollGesturesEnabled(true);
         uiSettings.setTiltGesturesEnabled(true);
-        uiSettings.setZoomControlsEnabled(true);*/
+        uiSettings.setZoomControlsEnabled(true);
 
-
-        LatLng upse = new LatLng(-2.231315, -80.879934);
-       /* mMap.addMarker(new MarkerOptions().position(upse).title("punto UPSE"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(upse));
-        mMap.animateCamera(CameraUpdateFactory.zoomIn());
-        */
+        LatLng markerpunto = new LatLng(recursoAlmacenado.latitud(), recursoAlmacenado.longuitd());
+        mMap.addMarker(new MarkerOptions().position(markerpunto).title(recursoAlmacenado.getNombre()));
         CameraPosition cameraPosition = new CameraPosition.Builder()
-                .target(upse)
+                .target(markerpunto)
                 .zoom(17)
                 .build();
 
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
         PolylineOptions sendero = new PolylineOptions()
-                .add(new LatLng(-2.231315, -80.879934))
-                .add(new LatLng(-2.231572, -80.879880))
-                .add(new LatLng(-2.231808, -80.879826))
-                .add(new LatLng(-2.232087, -80.879762))
-                .add(new LatLng(-2.232312, -80.879719))
-                .add(new LatLng(-2.232666, -80.879644))
-                .add(new LatLng(-2.232869, -80.879590))
-                .add(new LatLng(-2.233041, -80.879547))
-                .add(new LatLng(-2.233223, -80.879494))
-                .add(new LatLng(-2.233427, -80.879472))
-                .add(new LatLng(-2.233652, -80.879419))
-                .add(new LatLng(-2.233856, -80.879365))
-                .add(new LatLng(-2.234092, -80.879279))
-                .add(new LatLng(-2.234156, -80.879279))
-                .add(new LatLng(-2.234210, -80.879247))
-                .add(new LatLng(-2.234306, -80.879343))
-                .add(new LatLng(-2.234478, -80.879461))
-                .add(new LatLng(-2.234649, -80.879579))
-                .add(new LatLng(-2.234810, -80.879676))
-                .add(new LatLng(-2.234993, -80.879751))
-                .add(new LatLng(-2.235132, -80.879783))
-                .add(new LatLng(-2.235293, -80.879805))
-                .add(new LatLng(-2.235486, -80.879740))
                 .width(5)
                 .color(Color.BLUE)
                 .geodesic(true);
+
+        for(Senderos s : recursoAlmacenado.getSendero()) {
+            for(String p : s.getRecorrido()) {
+                LatLng puntoRecurso;
+                puntoRecurso = new LatLng(latitud(p), longuitd(p));
+                sendero.add(puntoRecurso);
+            }
+        }
+
 
         Polyline polyline = mMap.addPolyline(sendero);
 
 
     }
+
+    public double latitud(String posicion){
+        double latitud;
+        latitud=0.00;
+        String string = posicion;
+        String[] parts = string.split(",");
+        String part1 = parts[0];
+        latitud = Double.parseDouble(part1);
+        return latitud;
+    }
+
+    public double longuitd(String posicion){
+        double longuitd;
+        longuitd=0.00;
+        String string = posicion;
+        String[] parts = string.split(",");
+        String part1 = parts[1];
+        longuitd = Double.parseDouble(part1);
+        return longuitd;
+    }
+
 
 
 

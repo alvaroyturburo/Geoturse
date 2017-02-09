@@ -1,31 +1,35 @@
 package es.codigoandroid.pojos;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 
 
-
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Recursos {
 
-    //Campos para couchdb
-    //Campos para couchdb
-    private String _id;
+    @JsonProperty(value = "_id")
+    private String nombre;//Utilizo
+    private String descripcion;//Utilizo
+    private String informacionGeneral;//Utilizo
+    private String direccion;//Utilizo
+    private String posicion;//Utilizo
+    private Imagen imagenPrinc;//Utilizo
+    private ArrayList<Imagen> galeria = new ArrayList<Imagen>();//Utilizo
+    private ArrayList<Senderos> sendero = new ArrayList<Senderos>();//Utilizo
+
+    //private String _id;
 
 
-    private String _rev;
-    private String nombre;
-    private String descripcion;
-    private String informacionGeneral;
-    private String direccion;
+    private String _rev;//Utilizo
+
     private ArrayList<Costo> costoRecursos = new ArrayList<Costo>();
     private ArrayList<AccesibilidadRecurso> opcionesAccesibilidad = new ArrayList<AccesibilidadRecurso>();
     private ArrayList<Facilidad> facilidadRecurso = new ArrayList<Facilidad>();
     private ArrayList<Recomendacion> recomendacion = new ArrayList<Recomendacion>();
     private Contacto infContacto;
     private float ranking;
-    private ArrayList<Imagen> galeria = new ArrayList<Imagen>();
-    private Imagen imagenPrinc;
-    private ArrayList<Senderos> sendero = new ArrayList<Senderos>();
-    private String posicion;
     private Estado estado;
     private ArrayList<Idiomas> idiomasInformac = new ArrayList<Idiomas>();
     private ArrayList<String> preguntasFrecuentes = new ArrayList<String>();
@@ -37,16 +41,22 @@ public class Recursos {
 
     }
 
+    public Recursos(String nombre, String direccion, String posicion) {
+        this.nombre = nombre;
+        this.direccion = direccion;
+        this.posicion = posicion;
+    }
+
     //getters and setters
 
-
+/*
     public String get_id() {
         return _id;
     }
 
     public void set_id(String _id) {
         this._id = _id;
-    }
+    }*/
 
     public String get_rev() {
         return _rev;
@@ -235,5 +245,25 @@ public class Recursos {
     }
     public void sugerirCambio(){
 
+    }
+
+    public double latitud(){
+        double latitud;
+        latitud=0.00;
+        String string = posicion;
+        String[] parts = string.split(",");
+        String part1 = parts[0];
+        latitud = Double.parseDouble(part1);
+        return latitud;
+    }
+
+    public double longuitd(){
+        double longuitd;
+        longuitd=0.00;
+        String string = posicion;
+        String[] parts = string.split(",");
+        String part1 = parts[1];
+        longuitd = Double.parseDouble(part1);
+        return longuitd;
     }
 }

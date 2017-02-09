@@ -15,6 +15,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,10 +26,14 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import es.codigoandroid.es.codigoandroid.datamanager.CouchbaseManager;
 import es.codigoandroid.pojos.Recurso;
+import es.codigoandroid.pojos.Recursos;
 
 public class RecursoDetalle extends AppCompatActivity {
-    private TextView visitas;
+    private static final String TAG = "RecursoDetalle";
+    CouchbaseManager<String, Recursos> dbaRecurso;
+    private TextView direccion,descripcion, informacion;
     private ImageView imagen;
     private Button rutaBtn, senderoBtn;
     Location loc;
@@ -54,20 +59,31 @@ public class RecursoDetalle extends AppCompatActivity {
         setSupportActionBar(toolbar);
         inicLocation();
         registerLocation();
-
+        dbaRecurso = new CouchbaseManager<String, Recursos>(this, Recursos.class);
         //imagen = (ImageView) findViewById(R.id.imagenMostrar);
-        visitas = (TextView) findViewById(R.id.mostrarvisitas);
+        direccion = (TextView) findViewById(R.id.txtDireccionR);
+        descripcion = (TextView) findViewById(R.id.txtDescripcionR);
+        informacion = (TextView) findViewById(R.id.txtInformacionR);
         rutaBtn = (Button) findViewById(R.id.btnRuta);
         senderoBtn = (Button) findViewById(R.id.senderoBtn);
 
+
+
         String mostrarR = getIntent().getExtras().getString("recurso");
-        int mostrarRIm = getIntent().getExtras().getInt("recurso2");
-        int mostrarRVi = getIntent().getExtras().getInt("recurso3");
         toolbar.setTitle(mostrarR);
 
+        final Recursos recursoAlmacenado = dbaRecurso.get(mostrarR);
+
+        if(recursoAlmacenado.getSendero().size()>0){
+            senderoBtn.setEnabled(true);
+        }else{
+            senderoBtn.setEnabled(false);
+        }
 
         //imagen.setImageResource(mostrarRIm);
-        visitas.setText(" Visitas:"+String.valueOf(mostrarRVi));
+        direccion.setText("Dirección: "+recursoAlmacenado.getDireccion());
+        descripcion.setText(recursoAlmacenado.getDescripcion());
+        informacion.setText("Informacion: "+recursoAlmacenado.getInformacionGeneral());
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,21 +92,22 @@ public class RecursoDetalle extends AppCompatActivity {
             }
         });
 
+
         senderoBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                intent.putExtra("recurso", recursoAlmacenado.getNombre());
                 startActivity(intent);
             }
         });
-
         rutaBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 inicLocation();
                 registerLocation();
                 String origen = loc.getLatitude()+","+ loc.getLongitude();
-                String destino = "-2.228107, -80.862808";
+                String destino = recursoAlmacenado.getPosicion();
                 Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                         Uri.parse("http://maps.google.com/maps?saddr="+origen+"&daddr="+destino));
                 startActivity(intent);
@@ -142,6 +159,10 @@ public class RecursoDetalle extends AppCompatActivity {
             loc = locManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
     }
+
+
+
+
 
     public class ManejadoraGaleria extends FragmentPagerAdapter {
 
