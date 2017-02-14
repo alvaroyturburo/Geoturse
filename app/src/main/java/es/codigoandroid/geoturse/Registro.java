@@ -20,6 +20,13 @@ public class Registro extends AppCompatActivity {
     private static final String TAG = "Registro";
     CouchbaseManager<String, Usuario> dbaUsuario;
 
+    /*probar*/
+    static String NAMESPACE = "http://servicios.upse.edu.ec";
+    static String URL = "http://172.18.13.146:8080/WebServicesTaximetro/services/Taximetro?wsdl";
+    private String SOAP_ACTION="http://172.18.13.146:8080/WebServicesTaximetro/services/Taximetro/registroCarrera";
+    private String METODO="registroCarrera";
+    /*fin*/
+
     @Bind(R.id.input_name)
     EditText nameText;
     @Bind(R.id.input_address)
