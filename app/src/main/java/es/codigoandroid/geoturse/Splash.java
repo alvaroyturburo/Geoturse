@@ -44,7 +44,7 @@ public class Splash extends AppCompatActivity {
         recursoIngresado.setDireccion("Ubicado en el Zona Norte del canton Santa Elena");
         recursoIngresado.setPosicion("-2.140312, -80.776398");
 
-        ArrayList<String> puntosSedero = new ArrayList<String>();
+       /* ArrayList<String> puntosSedero = new ArrayList<String>();
         puntosSedero.add("-1.974413, -80.748873");
         puntosSedero.add("-1.974178, -80.748963");
         puntosSedero.add("-1.974097, -80.748974");
@@ -58,7 +58,7 @@ public class Splash extends AppCompatActivity {
 
         ArrayList<Senderos> listaSederos = new ArrayList<Senderos>();
         listaSederos.add(senderoIngresado);
-        recursoIngresado.setSendero(listaSederos);
+        recursoIngresado.setSendero(listaSederos);*/
 
         dbaRecurso.save(recursoIngresado);
 

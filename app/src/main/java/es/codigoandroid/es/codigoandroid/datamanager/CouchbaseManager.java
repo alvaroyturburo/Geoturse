@@ -196,10 +196,6 @@ public class CouchbaseManager<K, V>
     }
 
 
-
-
-
-
     /** Replicator */
 
     private URL getSyncUrl() {

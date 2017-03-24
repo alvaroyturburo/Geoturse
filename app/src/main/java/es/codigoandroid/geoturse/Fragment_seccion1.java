@@ -1,5 +1,6 @@
 package es.codigoandroid.geoturse;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -54,6 +55,7 @@ public class Fragment_seccion1 extends Fragment {
     LatLng upse;
     Location loc;
     private LocationManager locManager;
+    int contador = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState) {
@@ -65,6 +67,24 @@ public class Fragment_seccion1 extends Fragment {
         registerLocation();
         //loc = new Location(String.valueOf(new LatLng(-2.229612,-80.8820533)));
         inicPuntosMarker();
+
+        contador=contador +1;
+        if(contador<2){
+
+        final ProgressDialog progressDialog = new ProgressDialog(getActivity(),
+                R.style.AppTheme_Dark_Dialog);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Ubicando...");
+        progressDialog.show();
+
+        // TODO: Implement your own authentication logic here.
+
+        new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        progressDialog.dismiss();
+                    }
+                }, 10000);}
 
 
         upse = new LatLng(-2.147709, -80.624193);

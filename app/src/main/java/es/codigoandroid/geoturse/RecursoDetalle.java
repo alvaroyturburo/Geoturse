@@ -35,7 +35,7 @@ public class RecursoDetalle extends AppCompatActivity {
     CouchbaseManager<String, Recursos> dbaRecurso;
     private TextView direccion,descripcion, informacion;
     private ImageView imagen;
-    private Button rutaBtn, senderoBtn;
+    private Button rutaBtn, senderoBtn, galeriaBtn;
     Location loc;
 
     private LocationManager locManager;
@@ -66,6 +66,7 @@ public class RecursoDetalle extends AppCompatActivity {
         informacion = (TextView) findViewById(R.id.txtInformacionR);
         rutaBtn = (Button) findViewById(R.id.btnRuta);
         senderoBtn = (Button) findViewById(R.id.senderoBtn);
+        galeriaBtn = (Button) findViewById(R.id.galeriaBtn);
 
 
 
@@ -75,8 +76,11 @@ public class RecursoDetalle extends AppCompatActivity {
         final Recursos recursoAlmacenado = dbaRecurso.get(mostrarR);
 
         if(recursoAlmacenado.getSendero().size()>0){
+            Log.v("Existen senderos", ""+recursoAlmacenado.getSendero().size());
+            //senderoBtn.setVisibility(View.INVISIBLE);
             senderoBtn.setEnabled(true);
         }else{
+            Log.v("No existen senderos", ""+recursoAlmacenado.getSendero().size());
             senderoBtn.setEnabled(false);
         }
 
@@ -113,6 +117,14 @@ public class RecursoDetalle extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        /*galeriaBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), GalleryActivity.class);
+                intent.putExtra("recurso", recursoAlmacenado.getNombre());
+                startActivity(intent);
+            }
+        });*/
 
         manejadorGaleria = new ManejadoraGaleria(getSupportFragmentManager());
 

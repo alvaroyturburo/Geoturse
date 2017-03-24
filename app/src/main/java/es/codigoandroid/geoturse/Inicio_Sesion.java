@@ -15,6 +15,16 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.Database;
+import com.couchbase.lite.Manager;
+import com.couchbase.lite.android.AndroidContext;
+import com.couchbase.lite.replicator.Replication;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import es.codigoandroid.es.codigoandroid.datamanager.CouchbaseManager;
@@ -27,6 +37,8 @@ public class Inicio_Sesion extends AppCompatActivity {
     private LocationManager locManager;
     AlertDialog alert = null;
 
+    private Database database;
+
     @Bind(R.id.input_email)
     EditText emailText;
     @Bind(R.id.input_password)
@@ -35,6 +47,8 @@ public class Inicio_Sesion extends AppCompatActivity {
     Button loginButton;
     @Bind(R.id.link_signup)
     TextView signupLink;
+    @Bind(R.id.link_cambio)
+    TextView cambioLink;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,13 +56,31 @@ public class Inicio_Sesion extends AppCompatActivity {
         setContentView(R.layout.activity_inicio__sesion);
         ButterKnife.bind(this);
 
+        dbaUsuario = new CouchbaseManager<String, Usuario>(this, Usuario.class);
+        database = dbaUsuario.getDbCouchbase();
+        try {
+            // replace with the IP to use
+            URL url = new URL("http://186.178.10.221:4984/db");
+
+            Replication push = database.createPushReplication(url);
+            push.setContinuous(true);
+            push.start();
+
+            Replication pull = database.createPullReplication(url);
+            pull.setContinuous(true);
+            pull.start();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         locManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (!locManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
             AlertNoGps();
         }
 
-        dbaUsuario = new CouchbaseManager<String, Usuario>(this, Usuario.class);
+
 
         loginButton.setOnClickListener(new View.OnClickListener() {
 
@@ -59,6 +91,18 @@ public class Inicio_Sesion extends AppCompatActivity {
         });
 
         signupLink.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // Start the Signup activity
+                Intent intent = new Intent(getApplicationContext(), Registro.class);
+                startActivityForResult(intent, REQUEST_SIGNUP);
+                finish();
+                overridePendingTransition(R.anim.push_left_in, R.anim.push_left_out);
+            }
+        });
+
+        cambioLink.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
